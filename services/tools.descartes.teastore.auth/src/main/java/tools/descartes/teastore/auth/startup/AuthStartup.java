@@ -56,16 +56,5 @@ public class AuthStartup implements ServletContextListener {
     RegistryClient.getClient().unregister(event.getServletContext().getContextPath());
   }
 
-  /**
-   * startup routine.
-   * @see ServletContextListener#contextInitialized(ServletContextEvent)
-   * @param event The servlet context event at initialization.
-   */
-  public void contextInitialized(ServletContextEvent event) {
-    GlobalTracer.register(Tracing.init(Service.AUTH.getServiceName()));
-    RESTClient.setGlobalReadTimeout(REST_READ_TIMOUT);
-    ServiceLoadBalancer.preInitializeServiceLoadBalancers(Service.PERSISTENCE);
-    RegistryClient.getClient().register(event.getServletContext().getContextPath());
-  }
 
 }

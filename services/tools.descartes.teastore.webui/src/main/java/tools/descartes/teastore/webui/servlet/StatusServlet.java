@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.MediaType;
 
+import tools.descartes.teastore.image.ImageFacade;
 import tools.descartes.teastore.registryclient.RegistryClient;
 import tools.descartes.teastore.registryclient.Service;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
@@ -56,7 +57,7 @@ public class StatusServlet extends AbstractUIServlet {
     checkforCookie(request, response);
     String iconImage = null;
     try {
-      iconImage = LoadBalancedImageOperations.getWebImage("icon", ImageSizePreset.ICON.getSize());
+      iconImage = ImageFacade.getWebImageIcon("icon");
     } catch (NullPointerException e) {
 
     }

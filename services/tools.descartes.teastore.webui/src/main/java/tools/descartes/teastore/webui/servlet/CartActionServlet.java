@@ -25,8 +25,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import tools.descartes.teastore.auth.AuthFacade;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedStoreOperations;
+
 import tools.descartes.teastore.entities.OrderItem;
 import tools.descartes.teastore.entities.message.SessionBlob;
 
@@ -57,13 +58,14 @@ public class CartActionServlet extends AbstractUIServlet {
 			String param = (String) paramo;
 			if (param.contains("addToCart")) {
 				long productID = Long.parseLong(request.getParameter("productid"));
-				SessionBlob blob = LoadBalancedStoreOperations.addProductToCart(getSessionBlob(request), productID);
+
+				SessionBlob blob = AuthFacade.addProductToCart(getSessionBlob(request), productID);
 				saveSessionBlob(blob, response);
 				redirect("/cart", response, MESSAGECOOKIE, String.format(ADDPRODUCT, productID));
 				break;
 			} else if (param.contains("removeProduct")) {
 				long productID = Long.parseLong(param.substring("removeProduct_".length()));
-				SessionBlob blob = LoadBalancedStoreOperations.removeProductFromCart(getSessionBlob(request),
+				SessionBlob blob = AuthFacade.removeProductFromCart(getSessionBlob(request),
 						productID);
 				saveSessionBlob(blob, response);
 				redirect("/cart", response, MESSAGECOOKIE, String.format(REMOVEPRODUCT, productID));
@@ -74,7 +76,7 @@ public class CartActionServlet extends AbstractUIServlet {
 				redirect("/cart", response, MESSAGECOOKIE, CARTUPDATED);
 				break;
 			} else if (param.contains("proceedtoCheckout")) {
-				if (LoadBalancedStoreOperations.isLoggedIn(getSessionBlob(request))) {
+				if (AuthFacade.isLoggedIn(getSessionBlob(request))) {
 					List<OrderItem> orderItems = getSessionBlob(request).getOrderItems();
 					updateOrder(request, orderItems, response);
 					redirect("/order", response);
@@ -110,7 +112,7 @@ public class CartActionServlet extends AbstractUIServlet {
 			for (OrderItem item : blob.getOrderItems()) {
 				price += item.getQuantity() * item.getUnitPriceInCents();
 			}
-			blob = LoadBalancedStoreOperations.placeOrder(getSessionBlob(request), infos[0] + " " + infos[1], infos[2],
+			blob = AuthFacade.placeOrder(getSessionBlob(request), infos[0] + " " + infos[1], infos[2],
 					infos[3], infos[4],
 					YearMonth.parse(infos[6], DTF).atDay(1).format(DateTimeFormatter.ISO_LOCAL_DATE), price, infos[5]);
 			saveSessionBlob(blob, response);
@@ -152,7 +154,7 @@ public class CartActionServlet extends AbstractUIServlet {
 		SessionBlob blob = getSessionBlob(request);
 		for (OrderItem orderItem : orderItems) {
 			if (request.getParameter("orderitem_" + orderItem.getProductId()) != null) {
-				blob = LoadBalancedStoreOperations.updateQuantity(blob, orderItem.getProductId(),
+				blob = AuthFacade.updateQuantity(blob, orderItem.getProductId(),
 						Integer.parseInt(request.getParameter("orderitem_" + orderItem.getProductId())));
 			}
 		}

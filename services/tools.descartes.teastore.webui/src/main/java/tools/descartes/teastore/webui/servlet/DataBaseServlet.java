@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import tools.descartes.teastore.image.ImageFacade;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
 import tools.descartes.teastore.registryclient.rest.LoadBalancedImageOperations;
 import tools.descartes.teastore.entities.ImageSizePreset;
@@ -49,7 +50,7 @@ public class DataBaseServlet extends AbstractUIServlet {
 			throws ServletException, IOException, LoadBalancerTimeoutException {
 		checkforCookie(request, response);
 		request.setAttribute("storeIcon", 
-				LoadBalancedImageOperations.getWebImage("icon", ImageSizePreset.ICON.getSize()));
+				ImageFacade.getWebImageIcon("icon"));
 		request.setAttribute("title", "TeaStore Database");
 		request.getRequestDispatcher("WEB-INF/pages/database.jsp").forward(request, response);
 	}

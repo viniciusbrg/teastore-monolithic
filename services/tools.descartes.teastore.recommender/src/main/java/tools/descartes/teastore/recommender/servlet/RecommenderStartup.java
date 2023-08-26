@@ -61,32 +61,5 @@ public class RecommenderStartup implements ServletContextListener {
 		RegistryClient.getClient().unregister(event.getServletContext().getContextPath());
 	}
 
-	/**
-	 * @see ServletContextListener#contextInitialized(ServletContextEvent)
-	 * @param event
-	 *            The servlet context event at initialization.
-	 */
-	public void contextInitialized(ServletContextEvent event) {
-		GlobalTracer.register(Tracing.init(Service.RECOMMENDER.getServiceName()));
-		RESTClient.setGlobalReadTimeout(REST_READ_TIMOUT);
-		ServiceLoadBalancer.preInitializeServiceLoadBalancers(Service.PERSISTENCE);
-		RegistryClient.getClient().runAfterServiceIsAvailable(Service.PERSISTENCE, () -> {
-			TrainingSynchronizer.getInstance().retrieveDataAndRetrain();
-			RegistryClient.getClient().register(event.getServletContext().getContextPath());
-		}, Service.RECOMMENDER);
-		try {
-			long looptime = (Long) new InitialContext().lookup("java:comp/env/recommenderLoopTime");
-			// if a looptime is specified, a retraining daemon is started
-			if (looptime > 0) {
-				new RetrainDaemon(looptime).start();
-				LOG.info("Periodic retraining every " + looptime + " milliseconds");
-			} else {
-				LOG.info("Recommender loop time not set. Disabling periodic retraining.");
-			}
-		} catch (NamingException e) {
-			LOG.info("Recommender loop time not set. Disabling periodic retraining.");
-		}
-
-	}
 
 }

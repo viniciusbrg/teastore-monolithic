@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tools.descartes.teastore.registryclient.util;
+package tools.descartes.teastore.persistence.rest;
 
 import java.util.List;
 
@@ -59,7 +59,7 @@ public abstract class AbstractCRUDEndpoint<T> {
 	 * @param entity Entity to copy and create as new with a new ID.
 	 * @return The new ID. Also write this new ID to the new entity.
 	 */
-	protected abstract long createEntity(final T entity);
+	public abstract long createEntity(final T entity);
 
 	/**
 	 * Retreive and entity with the provided ID.
@@ -84,7 +84,7 @@ public abstract class AbstractCRUDEndpoint<T> {
 	 * @param id The ID of the Entity to find.
 	 * @return The retreived Entity. null, if no entity was found.
 	 */
-	protected abstract T findEntityById(final long id);
+	public abstract T findEntityById(final long id);
 
 	/**
 	 * Return a list of all entities starting at the startIndex_th entity.
@@ -110,7 +110,7 @@ public abstract class AbstractCRUDEndpoint<T> {
 	 * @param maxResultCount Max amount of entities to return. Negative maxResultCount: return all.
 	 * @return List of all entities within the provided range. Return an empty list for no matches.
 	 */
-	protected abstract List<T> listAllEntities(final int startIndex, final int maxResultCount);
+	public abstract List<T> listAllEntities(final int startIndex, final int maxResultCount);
 	
 	/**
 	 * Update the entity with ID id with the attributes of the passed entity.
@@ -142,7 +142,7 @@ public abstract class AbstractCRUDEndpoint<T> {
 	 * @param entity The values of the entity to update.
 	 * @return True, if a matching entity was found and updated. False, if the update failed.
 	 */
-	protected abstract boolean updateEntity(long id, final T entity);
+	public abstract boolean updateEntity(long id, final T entity);
 
 	/**
 	 * Delete the entity with ID id.
@@ -165,7 +165,7 @@ public abstract class AbstractCRUDEndpoint<T> {
 	 * @param id The id of the entity to delete.
 	 * @return True, if a matching entity was found and deleted. False, if no entity was found or if no delte occured.
 	 */
-	protected abstract boolean deleteEntity(long id);
+	public abstract boolean deleteEntity(long id);
 	
 	/**
 	 * Parses an int query param and catches errors. Returns -1 on errors or missing params.

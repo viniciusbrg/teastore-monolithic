@@ -47,13 +47,4 @@ public class RegistrationDaemon implements ServletContextListener {
     public void contextDestroyed(ServletContextEvent event)  { 
     	RegistryClient.getClient().unregister(event.getServletContext().getContextPath());
     }
-
-	/**
-     * @see ServletContextListener#contextInitialized(ServletContextEvent)
-     * @param event The servlet context event at initialization.
-     */
-    public void contextInitialized(ServletContextEvent event)  {
-    	RegistryClient.getClient().register("/" + Service.PERSISTENCE.getServiceName());
-    	LOG.info("Persistence started registration daemon");
-    }
 }

@@ -23,7 +23,6 @@ import jakarta.ws.rs.QueryParam;
 
 import tools.descartes.teastore.persistence.domain.OrderItemRepository;
 import tools.descartes.teastore.persistence.repository.DataGenerator;
-import tools.descartes.teastore.registryclient.util.AbstractCRUDEndpoint;
 import tools.descartes.teastore.entities.OrderItem;
 
 /**
@@ -38,7 +37,7 @@ public class OrderItemEndpoint extends AbstractCRUDEndpoint<OrderItem> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected long createEntity(final OrderItem orderItem) {
+	public long createEntity(final OrderItem orderItem) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return -1L;
 		}
@@ -49,7 +48,7 @@ public class OrderItemEndpoint extends AbstractCRUDEndpoint<OrderItem> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected OrderItem findEntityById(final long id) {
+	public OrderItem findEntityById(final long id) {
 		OrderItem item = OrderItemRepository.REPOSITORY.getEntity(id);
 		if (item == null) {
 			return null;
@@ -61,7 +60,7 @@ public class OrderItemEndpoint extends AbstractCRUDEndpoint<OrderItem> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected List<OrderItem> listAllEntities(final int startIndex, final int maxResultCount) {
+	public List<OrderItem> listAllEntities(final int startIndex, final int maxResultCount) {
 		List<OrderItem> orderItems = new ArrayList<OrderItem>();
 		for (OrderItem oi : OrderItemRepository.REPOSITORY.getAllEntities(startIndex, maxResultCount)) {
 			orderItems.add(new OrderItem(oi));
@@ -73,7 +72,7 @@ public class OrderItemEndpoint extends AbstractCRUDEndpoint<OrderItem> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean updateEntity(long id, OrderItem orderItem) {
+	public boolean updateEntity(long id, OrderItem orderItem) {
 		return OrderItemRepository.REPOSITORY.updateEntity(id, orderItem);
 	}
 
@@ -81,7 +80,7 @@ public class OrderItemEndpoint extends AbstractCRUDEndpoint<OrderItem> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean deleteEntity(long id) {
+	public boolean deleteEntity(long id) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return false;
 		}

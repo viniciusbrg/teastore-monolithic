@@ -20,11 +20,14 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import tools.descartes.teastore.auth.AuthFacade;
+import tools.descartes.teastore.image.ImageFacade;
+import tools.descartes.teastore.persistence.PersistenceFacade;
 import tools.descartes.teastore.registryclient.Service;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedCRUDOperations;
+
 import tools.descartes.teastore.registryclient.rest.LoadBalancedImageOperations;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedStoreOperations;
+
 import tools.descartes.teastore.entities.Category;
 import tools.descartes.teastore.entities.ImageSizePreset;
 
@@ -52,12 +55,10 @@ public class IndexServlet extends AbstractUIServlet {
 	protected void handleGETRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, LoadBalancerTimeoutException {
 		checkforCookie(request, response);
-		request.setAttribute("CategoryList",
-				LoadBalancedCRUDOperations.getEntities(Service.PERSISTENCE, "categories", Category.class, -1, -1));
+		request.setAttribute("CategoryList", PersistenceFacade.getAllCategories());
 		request.setAttribute("title", "TeaStore Home");
-		request.setAttribute("login", LoadBalancedStoreOperations.isLoggedIn(getSessionBlob(request)));
-		request.setAttribute("storeIcon",
-				LoadBalancedImageOperations.getWebImage("icon", ImageSizePreset.ICON.getSize()));
+		request.setAttribute("login", AuthFacade.isLoggedIn(getSessionBlob(request)));
+		request.setAttribute("storeIcon", ImageFacade.getWebImageIcon("icon"));
 
 		request.getRequestDispatcher("WEB-INF/pages/index.jsp").forward(request, response);
 	}

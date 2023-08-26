@@ -23,9 +23,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import tools.descartes.teastore.auth.AuthFacade;
+import tools.descartes.teastore.image.ImageFacade;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
 import tools.descartes.teastore.registryclient.rest.LoadBalancedImageOperations;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedStoreOperations;
+
 import tools.descartes.teastore.entities.ImageSizePreset;
 
 /**
@@ -51,9 +53,9 @@ public class AboutUsServlet extends AbstractUIServlet {
   protected void handleGETRequest(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException, LoadBalancerTimeoutException {
     checkforCookie(request, response);
-    HashMap<String, String> portraits = LoadBalancedImageOperations
+    HashMap<String, String> portraits = ImageFacade
         .getWebImages(Arrays.asList("andreBauer", "johannesGrohmann", "joakimKistowski",
-            "simonEismann", "norbertSchmitt", "samuelKounev"), ImageSizePreset.PORTRAIT.getSize());
+            "simonEismann", "norbertSchmitt", "samuelKounev"), ImageSizePreset.PORTRAIT);
     request.setAttribute("portraitAndre", portraits.get("andreBauer"));
     request.setAttribute("portraitJohannes", portraits.get("johannesGrohmann"));
     request.setAttribute("portraitJoakim", portraits.get("joakimKistowski"));
@@ -61,11 +63,11 @@ public class AboutUsServlet extends AbstractUIServlet {
     request.setAttribute("portraitNorbert", portraits.get("norbertSchmitt"));
     request.setAttribute("portraitKounev", portraits.get("samuelKounev"));
     request.setAttribute("descartesLogo",
-        LoadBalancedImageOperations.getWebImage("descartesLogo", ImageSizePreset.LOGO.getSize()));
+        ImageFacade.getWebImage("descartesLogo", ImageSizePreset.LOGO));
     request.setAttribute("storeIcon",
-        LoadBalancedImageOperations.getWebImage("icon", ImageSizePreset.ICON.getSize()));
+        ImageFacade.getWebImageIcon("icon"));
     request.setAttribute("title", "TeaStore About Us");
-    request.setAttribute("login", LoadBalancedStoreOperations.isLoggedIn(getSessionBlob(request)));
+    request.setAttribute("login", AuthFacade.isLoggedIn(getSessionBlob(request)));
 
     request.getRequestDispatcher("WEB-INF/pages/about.jsp").forward(request, response);
   }

@@ -52,7 +52,7 @@ public final class CacheManager {
 			ServiceLoadBalancer.multicastRESTToOtherServiceInstances(ENDPOINTURI, String.class,
 					client -> clearRemoteCacheREST(client, null));
 		} catch (Exception e) {
-			
+
 		}
 	}
 	

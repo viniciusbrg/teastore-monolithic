@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>recommender</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>TeaStore Recommender</name>
 	<url>http://descartes.tools</url>
 
@@ -44,6 +44,12 @@
 			<artifactId>junit</artifactId>
 			<version>4.13.1</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>tools.descartes.teastore</groupId>
+			<artifactId>persistence</artifactId>
+			<version>1.4.2</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

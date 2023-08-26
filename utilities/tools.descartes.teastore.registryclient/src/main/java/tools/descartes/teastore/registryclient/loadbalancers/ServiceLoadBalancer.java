@@ -69,20 +69,6 @@ public final class ServiceLoadBalancer {
     	this.targetService = targetService;
     }
 
-    /**
-     * Initializes load balancers for the target services.
-     * Queries target service instances from the registry.
-     * @param targetServices The services to pre-initialize.
-     */
-    public static void preInitializeServiceLoadBalancers(Service... targetServices) {
-    	for (Service service : targetServices) {
-    		//initialize before logging in case the compiler optimizes it away when log-level info is not set
-    		getServiceLoadBalancer(service);
-    		//log the state to prevent the compiler from optimizing the initialization away
-    		LOG.info("Pre-initializing client-side load balancer for target: "
-			 + getServiceLoadBalancer(service).targetService.getServiceName());
-    	}
-    }
 
 	private static ServiceLoadBalancer getServiceLoadBalancer(Service targetService) {
 		ServiceLoadBalancer serviceBalancer = serviceMap.get(targetService.getServiceName());
@@ -95,23 +81,6 @@ public final class ServiceLoadBalancer {
     	return serviceMap.get(targetService.getServiceName());
     }
 
-	/**
-	 * Gets the load balancer for a service. Initializes it with a list of know servers,
-	 * if the service is not known exists.
-	 * @param targetService The service for which to get the balancer
-	 * @param knownServers The list of know servers.
-	 * @return The load balancer.
-	 */
-	static ServiceLoadBalancer getServiceLoadBalancer(Service targetService, List<Server> knownServers) {
-		ServiceLoadBalancer serviceBalancer = ServiceLoadBalancer.serviceMap.get(targetService.getServiceName());
-    	if (serviceBalancer == null
-    			|| serviceBalancer.serviceServers == null
-    			|| serviceBalancer.serviceServers.isEmpty()) {
-    		serviceMap.putIfAbsent(targetService.getServiceName(), new ServiceLoadBalancer(targetService));
-    		updateLoadBalancersForService(targetService, knownServers);
-    	}
-    	return serviceMap.get(targetService.getServiceName());
-    }
 
 	@SuppressWarnings("unchecked")
 	private <T> EndpointClientCollection<T> getEndpointClientCollection(String endpointURI, Class<T> entityClass) {
@@ -261,7 +230,10 @@ public final class ServiceLoadBalancer {
     public static <T, R> List<R> multicastRESTOperation(Service targetService,
     		String endpointURI, Class<T> entityClass,
     		Function<RESTClient<T>, R> operation) {
-    	return getServiceLoadBalancer(targetService).multicastRESTOperation(endpointURI, entityClass, operation, null);
+		return List.of();
+
+		// TODO fix this currently a NO OP but with multiple instances might be useful
+//		return getServiceLoadBalancer(targetService).multicastRESTOperation(endpointURI, entityClass, operation, null);
     }
 
     /**
@@ -278,9 +250,11 @@ public final class ServiceLoadBalancer {
      */
     public static <T, R> List<R> multicastRESTToOtherServiceInstances(String endpointURI, Class<T> entityClass,
     		Function<RESTClient<T>, R> operation) {
-    	return getServiceLoadBalancer(RegistryClient.getClient().getMyService())
-    			.multicastRESTOperation(endpointURI, entityClass, operation,
-    					RegistryClient.getClient().getMyServiceInstanceServer());
+		return List.of();
+		// TODO fix this currently a NO OP but with multiple instances might be useful
+//    	return getServiceLoadBalancer(RegistryClient.getClient().getMyService())
+//    			.multicastRESTOperation(endpointURI, entityClass, operation,
+//    					RegistryClient.getClient().getMyServiceInstanceServer());
     }
 
     //exception can be null

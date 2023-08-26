@@ -23,7 +23,6 @@ import jakarta.ws.rs.QueryParam;
 
 import tools.descartes.teastore.persistence.domain.OrderRepository;
 import tools.descartes.teastore.persistence.repository.DataGenerator;
-import tools.descartes.teastore.registryclient.util.AbstractCRUDEndpoint;
 import tools.descartes.teastore.entities.Order;
 
 /**
@@ -38,7 +37,7 @@ public class OrderEndpoint extends AbstractCRUDEndpoint<Order> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected long createEntity(final Order order) {
+	public long createEntity(final Order order) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return -1L;
 		}
@@ -49,7 +48,7 @@ public class OrderEndpoint extends AbstractCRUDEndpoint<Order> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Order findEntityById(final long id) {
+	public Order findEntityById(final long id) {
 		Order order = OrderRepository.REPOSITORY.getEntity(id);
 		if (order == null) {
 			return null;
@@ -61,7 +60,7 @@ public class OrderEndpoint extends AbstractCRUDEndpoint<Order> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected List<Order> listAllEntities(final int startIndex, final int maxResultCount) {
+	public List<Order> listAllEntities(final int startIndex, final int maxResultCount) {
 		List<Order> order = new ArrayList<Order>();
 		for (Order o : OrderRepository.REPOSITORY.getAllEntities(startIndex, maxResultCount)) {
 			order.add(new Order(o));
@@ -73,7 +72,7 @@ public class OrderEndpoint extends AbstractCRUDEndpoint<Order> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean updateEntity(long id, Order order) {
+	public boolean updateEntity(long id, Order order) {
 		return OrderRepository.REPOSITORY.updateEntity(id, order);
 	}
 
@@ -81,7 +80,7 @@ public class OrderEndpoint extends AbstractCRUDEndpoint<Order> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean deleteEntity(long id) {
+	public boolean deleteEntity(long id) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return false;
 		}

@@ -43,6 +43,7 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tools.descartes.teastore.persistence.PersistenceFacade;
 import tools.descartes.teastore.registryclient.RegistryClient;
 import tools.descartes.teastore.registryclient.Service;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
@@ -155,17 +156,14 @@ public enum SetupController {
     while (true) {
       Response result = null;
       try {
-        result = ServiceLoadBalancer.loadBalanceRESTOperation(Service.PERSISTENCE, "generatedb",
-            String.class,
-            client -> ResponseWrapper
-                .wrap(HttpWrapper.wrap(client.getService().path(client.getApplicationURI())
-                    .path(client.getEndpointURI()).path("finished")).get()));
+        result = PersistenceFacade.generateDatabase();
       } catch (NotFoundException notFound) {
         log.info("No persistence found.", notFound);
       } catch (LoadBalancerTimeoutException timeout) {
         log.info("Persistence call timed out.", timeout);
       } catch (NullPointerException npe) {
-        log.info("ServiceLoadBalancerResult was null!");
+        npe.printStackTrace();
+        log.info("Deu null!! was null!");
       }
 
       if (result != null && Boolean.parseBoolean(result.readEntity(String.class))) {
@@ -187,16 +185,11 @@ public enum SetupController {
   }
 
   private void fetchProductsForCategory(Category category, HashMap<Category, List<Long>> products) {
-    waitForPersistence();
+//    waitForPersistence();
 
-    Response result = null;
+    List<Product> result = null;
     try {
-      result = ServiceLoadBalancer.loadBalanceRESTOperation(Service.PERSISTENCE, "products",
-          Product.class,
-          client -> ResponseWrapper.wrap(HttpWrapper.wrap(client.getService()
-              .path(client.getApplicationURI()).path(client.getEndpointURI()).path("category")
-              .path(String.valueOf(category.getId())).queryParam("start", 0).queryParam("max", -1))
-              .get()));
+      result = PersistenceFacade.getProductsWithFilters(category.getId(), 0, -1);
     } catch (NotFoundException notFound) {
       log.error("No persistence found but should be online.", notFound);
       throw notFound;
@@ -209,26 +202,20 @@ public enum SetupController {
       products.put(category, new ArrayList<>());
       log.info("No products for category {} ({}) found.", category.getName(), category.getId());
     } else {
-      List<Long> tmp = convertToIDs(result.readEntity(new GenericType<List<Product>>() {
-      }));
+      List<Long> tmp = convertToIDs(result);
       products.put(category, tmp);
-      result.close();
       log.info("Category {} ({}) contains {} products.", category.getName(), category.getId(),
           tmp.size());
     }
   }
 
   private List<Category> fetchCategories() {
-    waitForPersistence();
+//    waitForPersistence();
 
     List<Category> categories = null;
-    Response result = null;
+    List<Category> result = null;
     try {
-      result = ServiceLoadBalancer.loadBalanceRESTOperation(Service.PERSISTENCE, "categories",
-          Category.class,
-          client -> ResponseWrapper.wrap(HttpWrapper.wrap(
-              client.getService().path(client.getApplicationURI()).path(client.getEndpointURI()))
-              .get()));
+      result = PersistenceFacade.getAllCategories();
     } catch (NotFoundException notFound) {
       log.error("No persistence found but should be online.", notFound);
       throw notFound;
@@ -240,9 +227,7 @@ public enum SetupController {
     if (result == null) {
       log.warn("No categories found.");
     } else {
-      categories = result.readEntity(new GenericType<List<Category>>() {
-      });
-      result.close();
+      categories = result;
       log.info("{} categories found.", categories.size());
     }
 

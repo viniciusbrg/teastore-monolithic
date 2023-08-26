@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import tools.descartes.teastore.persistence.repository.CacheManager;
 import tools.descartes.teastore.persistence.repository.DataGenerator;
-import tools.descartes.teastore.registryclient.RegistryClient;
+//import tools.descartes.teastore.registryclient.RegistryClient;
 
 /**
  * Persistence endpoint for generating new database content.
@@ -45,7 +45,7 @@ public class DatabaseGenerationEndpoint {
 	 * @param products Number of new products per category.
 	 * @param users Number of new users.
 	 * @param orders Number of max orders per user.
-	 * @return Status OK. Returns {@value DataGenerator.MAINTENANCE_STATUS_CODE}
+//	 * @return Status OK. Returns {@value DataGenerator.MAINTENANCE_STATUS_CODE}
 	 * if in maintenance mode.
 	 */
 	@GET
@@ -54,8 +54,8 @@ public class DatabaseGenerationEndpoint {
 			@QueryParam("products") final Integer products,
 			@QueryParam("users") final Integer users,
 			@QueryParam("orders") final Integer orders) {
-		LOG.info("Received database generation command for Persistence at "
-			+ RegistryClient.getClient().getMyServiceInstanceServer() + ".");
+//		LOG.info("Received database generation command for Persistence at "
+//			+ RegistryClient.getClient().getMyServiceInstanceServer() + ".");
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return Response.status(DataGenerator.MAINTENANCE_STATUS_CODE).build();
 		}

@@ -57,20 +57,4 @@ public class RegistryStartup implements ServletContextListener {
     heartbeatScheduler.shutdownNow();
     LOG.info("Shutdown registry");
   }
-
-  /**
-   * @see ServletContextListener#contextInitialized(ServletContextEvent)
-   * @param arg0
-   *          The servlet context event at initialization.
-   */
-  public void contextInitialized(ServletContextEvent arg0) {
-    heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
-    heartbeatScheduler.scheduleAtFixedRate(new Runnable() {
-      @Override
-      public void run() {
-        Registry.getRegistryInstance().heartBeatCleanup();
-      }
-    }, HEARTBEAT_INTERVAL_MS, HEARTBEAT_INTERVAL_MS, TimeUnit.MILLISECONDS);
-    LOG.info("Registry online");
-  }
 }

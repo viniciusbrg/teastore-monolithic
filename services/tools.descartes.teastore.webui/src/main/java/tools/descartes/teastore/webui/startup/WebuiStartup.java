@@ -18,6 +18,12 @@ import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 
 import io.opentracing.util.GlobalTracer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tools.descartes.teastore.image.setup.SetupController;
+import tools.descartes.teastore.persistence.daemons.InitialDataGenerationDaemon;
+import tools.descartes.teastore.persistence.repository.DataGenerator;
+import tools.descartes.teastore.recommender.servlet.TrainingSynchronizer;
 import tools.descartes.teastore.registryclient.RegistryClient;
 import tools.descartes.teastore.registryclient.Service;
 import tools.descartes.teastore.registryclient.loadbalancers.ServiceLoadBalancer;
@@ -30,6 +36,8 @@ import tools.descartes.teastore.registryclient.tracing.Tracing;
  */
 @WebListener
 public class WebuiStartup implements ServletContextListener {
+	private static final Logger LOG = LoggerFactory.getLogger(WebuiStartup.class);
+
 	/**
 	 * Empty constructor.
 	 */
@@ -50,10 +58,34 @@ public class WebuiStartup implements ServletContextListener {
      * @param event The servlet context event at initialization.
      */
     public void contextInitialized(ServletContextEvent event) {
-        GlobalTracer.register(Tracing.init(Service.WEBUI.getServiceName()));
-    	ServiceLoadBalancer.preInitializeServiceLoadBalancers(Service.AUTH, Service.IMAGE,
-    			Service.PERSISTENCE, Service.RECOMMENDER);
-    	RegistryClient.getClient().register(event.getServletContext().getContextPath());
-    }
+		try {
+
+			System.out.println("WEBUI Init!!!");
+			//		GlobalTracer.register(Tracing.init(Service.WEBUI.getServiceName()));
+			//    	ServiceLoadBalancer.preInitializeServiceLoadBalancers(Service.AUTH, Service.IMAGE,
+			//    			Service.PERSISTENCE, Service.RECOMMENDER);
+			//    	RegistryClient.getClient().register(event.getServletContext().getContextPath());
+			try {
+				Thread.sleep(1000 * 10);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+
+			if (DataGenerator.GENERATOR.isDatabaseEmpty()) {
+				LOG.info("Database is empty. Generating new database content");
+				DataGenerator.GENERATOR.generateDatabaseContent(DataGenerator.SMALL_DB_CATEGORIES,
+						DataGenerator.SMALL_DB_PRODUCTS_PER_CATEGORY, DataGenerator.SMALL_DB_USERS,
+						DataGenerator.SMALL_DB_MAX_ORDERS_PER_USER);
+			} else {
+				LOG.info("Populated database found. Skipping data generation");
+			}
+			LOG.info("Persistence finished initializing database");
+			TrainingSynchronizer.getInstance().retrieveDataAndRetrain();
+			SetupController.SETUP.startup();
+		} catch (Exception e) {
+			LOG.error("Got unexpected error..");
+			e.printStackTrace();
+		}
+	}
 
 }

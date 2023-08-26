@@ -23,17 +23,20 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import tools.descartes.teastore.auth.AuthFacade;
+import tools.descartes.teastore.image.ImageFacade;
 import tools.descartes.teastore.registryclient.Service;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
 import tools.descartes.teastore.registryclient.loadbalancers.ServiceLoadBalancer;
 import tools.descartes.teastore.registryclient.rest.HttpWrapper;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedCRUDOperations;
+
 import tools.descartes.teastore.registryclient.rest.LoadBalancedImageOperations;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedStoreOperations;
+
 import tools.descartes.teastore.registryclient.rest.ResponseWrapper;
 import tools.descartes.teastore.entities.Category;
 import tools.descartes.teastore.entities.ImageSizePreset;
 import tools.descartes.teastore.entities.Product;
+import tools.descartes.teastore.persistence.PersistenceFacade;
 
 /**
  * Servlet implementation for the web view of "Category".
@@ -65,14 +68,10 @@ public class CategoryServlet extends AbstractUIServlet {
       checkforCookie(request, response);
       long categoryID = Long.parseLong(request.getParameter("category"));
 
-      Category category = LoadBalancedCRUDOperations.getEntity(Service.PERSISTENCE, "categories",
+      Category category = PersistenceFacade.getCategory(Service.PERSISTENCE, "categories",
           Category.class, categoryID);
 
-      int products = Integer.parseInt(ServiceLoadBalancer.loadBalanceRESTOperation(
-          Service.PERSISTENCE, "products", Product.class,
-          client -> ResponseWrapper.wrap(HttpWrapper
-              .wrap(client.getEndpointTarget().path("count").path(String.valueOf(categoryID)))
-              .get()).readEntity(String.class)));
+      int products = PersistenceFacade.getProductCountForCategory(categoryID);
 
       int numberProducts = INITIAL_PRODUCT_DISPLAY_COUNT;
       if (request.getAttribute("numberProducts") != null) {
@@ -90,22 +89,18 @@ public class CategoryServlet extends AbstractUIServlet {
 
       ArrayList<String> navigation = createNavigation(products, page, numberProducts);
 
-      List<Product> productlist = LoadBalancedCRUDOperations.getEntities(Service.PERSISTENCE,
-          "products", Product.class, "category", categoryID, (page - 1) * numberProducts,
-          numberProducts);
+      List<Product> productlist = PersistenceFacade.getProductsWithFilters(categoryID, (page - 1) * numberProducts, numberProducts);
       request.setAttribute("productImages",
-          LoadBalancedImageOperations.getProductPreviewImages(productlist));
+              ImageFacade.getProductPreviewImages(productlist));
       request.setAttribute("storeIcon",
-          LoadBalancedImageOperations.getWebImage("icon", ImageSizePreset.ICON.getSize()));
-      request.setAttribute("CategoryList", LoadBalancedCRUDOperations
-          .getEntities(Service.PERSISTENCE, "categories", Category.class, -1, -1));
+          ImageFacade.getWebImageIcon("icon"));
+      request.setAttribute("CategoryList", PersistenceFacade.getAllCategories());
       request.setAttribute("title", "TeaStore Categorie " + category.getName());
 
       request.setAttribute("Productslist", productlist);
 
       request.setAttribute("category", category.getName());
-      request.setAttribute("login",
-          LoadBalancedStoreOperations.isLoggedIn(getSessionBlob(request)));
+      request.setAttribute("login", AuthFacade.isLoggedIn(getSessionBlob(request)));
       request.setAttribute("categoryID", categoryID);
       request.setAttribute("currentnumber", numberProducts);
       request.setAttribute("pagination", navigation);

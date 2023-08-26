@@ -50,21 +50,4 @@ public class ImageProviderStartup implements ServletContextListener {
     SetupController.SETUP.teardown();
   }
 
-  /**
-   * @see ServletContextListener#contextInitialized(ServletContextEvent)
-   * @param event
-   *          The servlet context event at initialization.
-   */
-  public void contextInitialized(ServletContextEvent event) {
-    GlobalTracer.register(Tracing.init(Service.IMAGE.getServiceName()));
-    ServiceLoadBalancer.preInitializeServiceLoadBalancers(Service.PERSISTENCE);
-    RegistryClient.getClient().runAfterServiceIsAvailable(Service.PERSISTENCE,
-        new StartupCallback() {
-          @Override
-          public void callback() {
-            SetupController.SETUP.startup();
-            RegistryClient.getClient().register(event.getServletContext().getContextPath());
-          }
-        }, Service.IMAGE);
-  }
 }

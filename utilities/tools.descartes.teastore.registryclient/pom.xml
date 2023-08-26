@@ -14,7 +14,8 @@
 		<dependency>
 			<groupId>tools.descartes.teastore</groupId>
 			<artifactId>entities</artifactId>
-			<version>${teastoreversion}</version>
+			<version>1.4.2</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kieker-monitoring</groupId>

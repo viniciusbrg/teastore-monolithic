@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>auth</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>TeaStore Auth</name>
 	<url>http://descartes.tools</url>
 
@@ -50,7 +50,13 @@
 			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>tools.descartes.teastore</groupId>
+            <artifactId>persistence</artifactId>
+            <version>1.4.2</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<finalName>tools.descartes.teastore.auth</finalName>

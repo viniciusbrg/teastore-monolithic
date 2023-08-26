@@ -27,8 +27,9 @@ import tools.descartes.teastore.auth.security.ShaSecurityProvider;
 import tools.descartes.teastore.entities.OrderItem;
 import tools.descartes.teastore.entities.Product;
 import tools.descartes.teastore.entities.message.SessionBlob;
+import tools.descartes.teastore.persistence.PersistenceFacade;
 import tools.descartes.teastore.registryclient.Service;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedCRUDOperations;
+
 import tools.descartes.teastore.registryclient.util.NotFoundException;
 import tools.descartes.teastore.registryclient.util.TimeoutException;
 
@@ -57,7 +58,7 @@ public class AuthCartRest {
   public Response addProductToCart(SessionBlob blob, @PathParam("pid") final Long pid) {
     Product product;
     try {
-      product = LoadBalancedCRUDOperations.getEntity(Service.PERSISTENCE, "products", Product.class,
+      product = PersistenceFacade.getProduct(Service.PERSISTENCE, "products", Product.class,
           pid);
     } catch (TimeoutException e) {
       return Response.status(408).build();

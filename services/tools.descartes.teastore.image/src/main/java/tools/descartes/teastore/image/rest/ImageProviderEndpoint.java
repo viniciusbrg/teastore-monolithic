@@ -14,6 +14,7 @@
 package tools.descartes.teastore.image.rest;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import jakarta.ws.rs.Consumes;
@@ -45,9 +46,13 @@ public class ImageProviderEndpoint {
   @Path("getProductImages")
   public Response getProductImages(HashMap<Long, String> images) {
     return Response.ok()
-        .entity(ImageProvider.IP.getProductImages(images.entrySet().parallelStream().collect(
-            Collectors.toMap(e -> e.getKey(), e -> ImageSize.parseImageSize(e.getValue())))))
+        .entity(getProductImagesImpl(images))
         .build();
+  }
+
+  public Map<Long, String> getProductImagesImpl(HashMap<Long, String> images) {
+    return ImageProvider.IP.getProductImages(images.entrySet().parallelStream().collect(
+            Collectors.toMap(e -> e.getKey(), e -> ImageSize.parseImageSize(e.getValue()))));
   }
 
   /**
@@ -59,9 +64,13 @@ public class ImageProviderEndpoint {
   @Path("getWebImages")
   public Response getWebUIImages(HashMap<String, String> images) {
     return Response.ok()
-        .entity(ImageProvider.IP.getWebUIImages(images.entrySet().parallelStream().collect(
-            Collectors.toMap(e -> e.getKey(), e -> ImageSize.parseImageSize(e.getValue())))))
+        .entity(getUiImages(images))
         .build();
+  }
+
+  public Map<String, String> getUiImages(HashMap<String, String> images) {
+    return ImageProvider.IP.getWebUIImages(images.entrySet().parallelStream().collect(
+            Collectors.toMap(e -> e.getKey(), e -> ImageSize.parseImageSize(e.getValue()))));
   }
 
   /**

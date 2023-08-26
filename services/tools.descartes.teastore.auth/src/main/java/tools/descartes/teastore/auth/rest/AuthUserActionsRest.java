@@ -31,9 +31,10 @@ import tools.descartes.teastore.entities.Order;
 import tools.descartes.teastore.entities.OrderItem;
 import tools.descartes.teastore.entities.User;
 import tools.descartes.teastore.entities.message.SessionBlob;
+import tools.descartes.teastore.persistence.PersistenceFacade;
 import tools.descartes.teastore.registryclient.Service;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedCRUDOperations;
+
 import tools.descartes.teastore.registryclient.util.NotFoundException;
 import tools.descartes.teastore.registryclient.util.TimeoutException;
 
@@ -93,8 +94,7 @@ public class AuthUserActionsRest {
 
     long orderId;
     try {
-      orderId = LoadBalancedCRUDOperations.sendEntityForCreation(Service.PERSISTENCE, "orders",
-          Order.class, blob.getOrder());
+      orderId = PersistenceFacade.placeNewOrder(blob.getOrder());
     } catch (LoadBalancerTimeoutException e) {
       return Response.status(408).build();
     } catch (NotFoundException e) {
@@ -103,8 +103,7 @@ public class AuthUserActionsRest {
     for (OrderItem item : blob.getOrderItems()) {
       try {
         item.setOrderId(orderId);
-        LoadBalancedCRUDOperations.sendEntityForCreation(Service.PERSISTENCE, "orderitems",
-            OrderItem.class, item);
+        PersistenceFacade.placeNewOrderItem(item);
       } catch (TimeoutException e) {
         return Response.status(408).build();
       } catch (NotFoundException e) {
@@ -134,8 +133,7 @@ public class AuthUserActionsRest {
       @QueryParam("password") String password) {
     User user;
     try {
-      user = LoadBalancedCRUDOperations.getEntityWithProperties(Service.PERSISTENCE, "users",
-          User.class, "name", name);
+      user = PersistenceFacade.getUserByName(name);
     } catch (TimeoutException e) {
       return Response.status(408).build();
     } catch (NotFoundException e) {

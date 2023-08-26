@@ -20,8 +20,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import tools.descartes.teastore.auth.AuthFacade;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedStoreOperations;
+
 import tools.descartes.teastore.entities.message.SessionBlob;
 
 /**
@@ -59,7 +60,7 @@ public class LoginActionServlet extends AbstractUIServlet {
 			throws ServletException, IOException, LoadBalancerTimeoutException {
 		boolean login = false;
 		if (request.getParameter("username") != null && request.getParameter("password") != null) {
-			SessionBlob blob = LoadBalancedStoreOperations.login(getSessionBlob(request),
+			SessionBlob blob = AuthFacade.login(getSessionBlob(request),
 					request.getParameter("username"), request.getParameter("password"));
 			login = (blob != null && blob.getSID() != null);
 
@@ -77,7 +78,7 @@ public class LoginActionServlet extends AbstractUIServlet {
 			}
 
 		} else if (request.getParameter("logout") != null) {
-			SessionBlob blob = LoadBalancedStoreOperations.logout(getSessionBlob(request));
+			SessionBlob blob = AuthFacade.logout(getSessionBlob(request));
 			saveSessionBlob(blob, response);
 			destroySessionBlob(blob, response);
 			redirect("/", response, MESSAGECOOKIE, SUCESSLOGOUT);

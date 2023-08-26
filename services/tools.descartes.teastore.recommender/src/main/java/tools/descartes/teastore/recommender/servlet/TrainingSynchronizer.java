@@ -30,11 +30,12 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tools.descartes.teastore.persistence.PersistenceFacade;
 import tools.descartes.teastore.recommender.algorithm.RecommenderSelector;
 import tools.descartes.teastore.registryclient.Service;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
 import tools.descartes.teastore.registryclient.loadbalancers.ServiceLoadBalancer;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedCRUDOperations;
+
 import tools.descartes.teastore.registryclient.util.NotFoundException;
 import tools.descartes.teastore.entities.Order;
 import tools.descartes.teastore.entities.OrderItem;
@@ -175,13 +176,14 @@ public final class TrainingSynchronizer {
 		setReady(false);
 		LOG.trace("Retrieving data objects from database...");
 
-		waitForPersistence();
+		// TODO remove line Waiting should be needed anymore
+//		waitForPersistence();
 
 		List<OrderItem> items = null;
 		List<Order> orders = null;
 		// retrieve
 		try {
-			items = LoadBalancedCRUDOperations.getEntities(Service.PERSISTENCE, "orderitems", OrderItem.class, -1, -1);
+			items = PersistenceFacade.getAllOrdemItems();
 			long noItems = items.size();
 			LOG.trace("Retrieved " + noItems + " orderItems, starting retrieving of orders now.");
 		} catch (NotFoundException | LoadBalancerTimeoutException e) {
@@ -191,7 +193,7 @@ public final class TrainingSynchronizer {
 			return -1;
 		}
 		try {
-			orders = LoadBalancedCRUDOperations.getEntities(Service.PERSISTENCE, "orders", Order.class, -1, -1);
+			orders = PersistenceFacade.getAllOrders();
 			long noOrders = orders.size();
 			LOG.trace("Retrieved " + noOrders + " orders, starting training now.");
 		} catch (NotFoundException | LoadBalancerTimeoutException e) {
@@ -210,28 +212,28 @@ public final class TrainingSynchronizer {
 	}
 
 	private void filterLists(List<OrderItem> orderItems, List<Order> orders) {
-		// since we are not registered ourselves, we can multicast to all services
-		List<Response> maxTimeResponses = ServiceLoadBalancer.multicastRESTOperation(Service.RECOMMENDER,
-				"train/timestamp", Response.class,
-				client -> client.getService().path(client.getApplicationURI()).path(client.getEndpointURI())
-						.request(MediaType.TEXT_PLAIN).accept(MediaType.TEXT_PLAIN).get());
-		for (Response response : maxTimeResponses) {
-			if (response == null) {
-				LOG.warn("One service response was null and is therefore not available for time-check.");
-			} else if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-				// only consider if status was fine
-				long milliTS = response.readEntity(Long.class);
-				if (maxTime != TrainingSynchronizer.DEFAULT_MAX_TIME_VALUE && maxTime != milliTS) {
-					LOG.warn("Services disagree about timestamp: " + maxTime + " vs " + milliTS
-							+ ". Therfore using the minimum.");
-				}
-				maxTime = Math.min(maxTime, milliTS);
-			} else {
-				// release connection by buffering entity
-				response.bufferEntity();
-				LOG.warn("Service " + response + "was not available for time-check.");
-			}
-		}
+// TODO adapt snippet below to allow multiple running instances of the monolith
+		//		List<Response> maxTimeResponses = ServiceLoadBalancer.multicastRESTOperation(Service.RECOMMENDER,
+//				"train/timestamp", Response.class,
+//				client -> client.getService().path(client.getApplicationURI()).path(client.getEndpointURI())
+//						.request(MediaType.TEXT_PLAIN).accept(MediaType.TEXT_PLAIN).get());
+//		for (Response response : maxTimeResponses) {
+//			if (response == null) {
+//				LOG.warn("One service response was null and is therefore not available for time-check.");
+//			} else if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+//				// only consider if status was fine
+//				long milliTS = response.readEntity(Long.class);
+//				if (maxTime != TrainingSynchronizer.DEFAULT_MAX_TIME_VALUE && maxTime != milliTS) {
+//					LOG.warn("Services disagree about timestamp: " + maxTime + " vs " + milliTS
+//							+ ". Therfore using the minimum.");
+//				}
+//				maxTime = Math.min(maxTime, milliTS);
+//			} else {
+//				// release connection by buffering entity
+//				response.bufferEntity();
+//				LOG.warn("Service " + response + "was not available for time-check.");
+//			}
+//		}
 		if (maxTime == Long.MIN_VALUE) {
 			// we are the only known service
 			// therefore we find max and set it

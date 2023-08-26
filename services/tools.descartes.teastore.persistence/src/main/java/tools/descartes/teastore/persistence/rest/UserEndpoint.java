@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.Response.Status;
 
 import tools.descartes.teastore.persistence.domain.UserRepository;
 import tools.descartes.teastore.persistence.repository.DataGenerator;
-import tools.descartes.teastore.registryclient.util.AbstractCRUDEndpoint;
 import tools.descartes.teastore.entities.User;
 
 /**
@@ -40,7 +39,7 @@ public class UserEndpoint extends AbstractCRUDEndpoint<User> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected long createEntity(final User category) {
+	public long createEntity(final User category) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return -1L;
 		}
@@ -57,7 +56,7 @@ public class UserEndpoint extends AbstractCRUDEndpoint<User> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected User findEntityById(final long id) {
+	public User findEntityById(final long id) {
 		User user = UserRepository.REPOSITORY.getEntity(id);
 		if (user == null) {
 			return null;
@@ -69,7 +68,7 @@ public class UserEndpoint extends AbstractCRUDEndpoint<User> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected List<User> listAllEntities(final int startIndex, final int maxResultCount) {
+	public List<User> listAllEntities(final int startIndex, final int maxResultCount) {
 		List<User> users = new ArrayList<User>();
 		for (User u : UserRepository.REPOSITORY.getAllEntities(startIndex, maxResultCount)) {
 			users.add(new User(u));
@@ -81,7 +80,7 @@ public class UserEndpoint extends AbstractCRUDEndpoint<User> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean updateEntity(long id, User category) {
+	public boolean updateEntity(long id, User category) {
 		return UserRepository.REPOSITORY.updateEntity(id, category);
 	}
 
@@ -89,7 +88,7 @@ public class UserEndpoint extends AbstractCRUDEndpoint<User> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean deleteEntity(long id) {
+	public boolean deleteEntity(long id) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return false;
 		}

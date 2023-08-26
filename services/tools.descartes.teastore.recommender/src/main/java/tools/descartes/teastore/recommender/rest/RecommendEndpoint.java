@@ -55,8 +55,11 @@ public class RecommendEndpoint {
 	 *         recommendation failed.
 	 */
 	@POST
-	public Response recommend(List<OrderItem> currentItems, @QueryParam("uid") final Long uid) {
-		List<Long> recommended = RecommenderSelector.getInstance().recommendProducts(uid, currentItems);
-		return Response.ok().entity(recommended).build();
+	public Response recommendRest(List<OrderItem> currentItems, @QueryParam("uid") final Long uid) {
+		return Response.ok().entity(recommend(currentItems, uid)).build();
+	}
+
+	public List<Long> recommend(List<OrderItem> currentItems, Long uid) {
+		return RecommenderSelector.getInstance().recommendProducts(uid, currentItems);
 	}
 }

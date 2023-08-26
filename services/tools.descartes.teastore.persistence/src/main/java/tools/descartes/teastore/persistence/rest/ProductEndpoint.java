@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.Response;
 
 import tools.descartes.teastore.persistence.domain.ProductRepository;
 import tools.descartes.teastore.persistence.repository.DataGenerator;
-import tools.descartes.teastore.registryclient.util.AbstractCRUDEndpoint;
 import tools.descartes.teastore.entities.Product;
 
 /**
@@ -39,7 +38,7 @@ public class ProductEndpoint extends AbstractCRUDEndpoint<Product> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected long createEntity(final Product product) {
+	public long createEntity(final Product product) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return -1L;
 		}
@@ -50,7 +49,7 @@ public class ProductEndpoint extends AbstractCRUDEndpoint<Product> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Product findEntityById(final long id) {
+	public Product findEntityById(final long id) {
 		Product product = ProductRepository.REPOSITORY.getEntity(id);
 		if (product == null) {
 			return null;
@@ -62,7 +61,7 @@ public class ProductEndpoint extends AbstractCRUDEndpoint<Product> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected List<Product> listAllEntities(final int startIndex, final int maxResultCount) {
+	public List<Product> listAllEntities(final int startIndex, final int maxResultCount) {
 		List<Product> products = new ArrayList<Product>();
 		for (Product p : ProductRepository.REPOSITORY.getAllEntities(startIndex, maxResultCount)) {
 			products.add(new Product(p));
@@ -74,7 +73,7 @@ public class ProductEndpoint extends AbstractCRUDEndpoint<Product> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean updateEntity(long id, Product product) {
+	public boolean updateEntity(long id, Product product) {
 		return ProductRepository.REPOSITORY.updateEntity(id, product);
 	}
 
@@ -82,7 +81,7 @@ public class ProductEndpoint extends AbstractCRUDEndpoint<Product> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean deleteEntity(long id) {
+	public boolean deleteEntity(long id) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return false;
 		}

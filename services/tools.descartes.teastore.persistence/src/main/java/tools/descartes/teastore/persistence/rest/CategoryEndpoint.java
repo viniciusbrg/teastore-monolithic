@@ -20,7 +20,6 @@ import jakarta.ws.rs.Path;
 
 import tools.descartes.teastore.persistence.domain.CategoryRepository;
 import tools.descartes.teastore.persistence.repository.DataGenerator;
-import tools.descartes.teastore.registryclient.util.AbstractCRUDEndpoint;
 import tools.descartes.teastore.entities.Category;
 
 /**
@@ -35,7 +34,7 @@ public class CategoryEndpoint extends AbstractCRUDEndpoint<Category> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected long createEntity(final Category category) {
+	public long createEntity(final Category category) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return -1L;
 		}
@@ -46,7 +45,7 @@ public class CategoryEndpoint extends AbstractCRUDEndpoint<Category> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Category findEntityById(final long id) {
+	public Category findEntityById(final long id) {
 		Category category = CategoryRepository.REPOSITORY.getEntity(id);
 		if (category == null) {
 			return null;
@@ -58,7 +57,7 @@ public class CategoryEndpoint extends AbstractCRUDEndpoint<Category> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected List<Category> listAllEntities(final int startIndex, final int maxResultCount) {
+	public List<Category> listAllEntities(final int startIndex, final int maxResultCount) {
 		List<Category> categories = new ArrayList<Category>();
 		for (Category c : CategoryRepository.REPOSITORY.getAllEntities(startIndex, maxResultCount)) {
 			categories.add(new Category(c));
@@ -70,7 +69,7 @@ public class CategoryEndpoint extends AbstractCRUDEndpoint<Category> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean updateEntity(long id, Category category) {
+	public boolean updateEntity(long id, Category category) {
 		return CategoryRepository.REPOSITORY.updateEntity(id, category);
 	}
 
@@ -78,7 +77,7 @@ public class CategoryEndpoint extends AbstractCRUDEndpoint<Category> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean deleteEntity(long id) {
+	public boolean deleteEntity(long id) {
 		if (DataGenerator.GENERATOR.isMaintenanceMode()) {
 			return false;
 		}

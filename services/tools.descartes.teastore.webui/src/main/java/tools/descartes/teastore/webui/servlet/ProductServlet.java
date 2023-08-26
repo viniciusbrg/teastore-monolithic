@@ -23,12 +23,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import tools.descartes.teastore.auth.AuthFacade;
+import tools.descartes.teastore.image.ImageFacade;
+import tools.descartes.teastore.recommender.RecommenderFacade;
 import tools.descartes.teastore.registryclient.Service;
 import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedCRUDOperations;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedImageOperations;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedRecommenderOperations;
-import tools.descartes.teastore.registryclient.rest.LoadBalancedStoreOperations;
+
+import tools.descartes.teastore.persistence.PersistenceFacade;
 import tools.descartes.teastore.webui.servlet.elhelper.ELHelperUtils;
 import tools.descartes.teastore.entities.Category;
 import tools.descartes.teastore.entities.ImageSizePreset;
@@ -61,12 +62,11 @@ public class ProductServlet extends AbstractUIServlet {
     checkforCookie(request, response);
     if (request.getParameter("id") != null) {
       Long id = Long.valueOf(request.getParameter("id"));
-      request.setAttribute("CategoryList", LoadBalancedCRUDOperations
-          .getEntities(Service.PERSISTENCE, "categories", Category.class, -1, -1));
+      request.setAttribute("CategoryList", PersistenceFacade.getAllCategories());
       request.setAttribute("title", "TeaStore Product");
       SessionBlob blob = getSessionBlob(request);
-      request.setAttribute("login", LoadBalancedStoreOperations.isLoggedIn(blob));
-      Product p = LoadBalancedCRUDOperations.getEntity(Service.PERSISTENCE, "products",
+      request.setAttribute("login", AuthFacade.isLoggedIn(getSessionBlob(request)));
+      Product p = PersistenceFacade.getProduct(Service.PERSISTENCE, "products",
           Product.class, id);
       request.setAttribute("product", p);
 
@@ -76,11 +76,11 @@ public class ProductServlet extends AbstractUIServlet {
       oi.setQuantity(1);
       items.add(oi);
       items.addAll(getSessionBlob(request).getOrderItems());
-      List<Long> productIds = LoadBalancedRecommenderOperations.getRecommendations(items,
+      List<Long> productIds = RecommenderFacade.getRecommendations(items,
           getSessionBlob(request).getUID());
       List<Product> ads = new LinkedList<Product>();
       for (Long productId : productIds) {
-        ads.add(LoadBalancedCRUDOperations.getEntity(Service.PERSISTENCE, "products", Product.class,
+        ads.add(PersistenceFacade.getProduct(Service.PERSISTENCE, "products", Product.class,
             productId));
       }
 
@@ -89,11 +89,11 @@ public class ProductServlet extends AbstractUIServlet {
       }
       request.setAttribute("Advertisment", ads);
 
-      request.setAttribute("productImages", LoadBalancedImageOperations.getProductImages(ads,
-          ImageSizePreset.RECOMMENDATION.getSize()));
-      request.setAttribute("productImage", LoadBalancedImageOperations.getProductImage(p));
+      request.setAttribute("productImages", ImageFacade.getProductImages(ads,
+          ImageSizePreset.RECOMMENDATION));
+      request.setAttribute("productImage", ImageFacade.getProductImage(p, ImageSizePreset.FULL));
       request.setAttribute("storeIcon",
-          LoadBalancedImageOperations.getWebImage("icon", ImageSizePreset.ICON.getSize()));
+          ImageFacade.getWebImageIcon("icon"));
       request.setAttribute("helper", ELHelperUtils.UTILS);
 
       request.getRequestDispatcher("WEB-INF/pages/product.jsp").forward(request, response);

@@ -56,27 +56,6 @@ public class InitialDataGenerationDaemon implements ServletContextListener {
     RegistryClient.getClient().unregister(event.getServletContext().getContextPath());
   }
 
-  /**
-   * @see ServletContextListener#contextInitialized(ServletContextEvent)
-   * @param event
-   *          The servlet context event at initialization.
-   */
-  public void contextInitialized(ServletContextEvent event) {
-    GlobalTracer.register(Tracing.init(Service.PERSISTENCE.getServiceName()));
-    waitForDatabase();
-    if (DataGenerator.GENERATOR.isDatabaseEmpty()) {
-      LOG.info("Database is empty. Generating new database content");
-      DataGenerator.GENERATOR.generateDatabaseContent(DataGenerator.SMALL_DB_CATEGORIES,
-          DataGenerator.SMALL_DB_PRODUCTS_PER_CATEGORY, DataGenerator.SMALL_DB_USERS,
-          DataGenerator.SMALL_DB_MAX_ORDERS_PER_USER);
-    } else {
-      LOG.info("Populated database found. Skipping data generation");
-    }
-    LOG.info("Persistence finished initializing database");
-    RegistryClient.getClient().register(event.getServletContext().getContextPath());
-    LOG.info("Persistence started registration daemon");
-  }
-
   private void waitForDatabase() {
     boolean databaseOffline = true;
     while (databaseOffline) {
