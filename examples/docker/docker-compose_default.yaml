@@ -1,9 +1,5 @@
 version: '3'
 services:
-  registry:
-    image: teastore-registry
-    expose:
-      - "8080"
   db:
     image: teastore-db
     expose:

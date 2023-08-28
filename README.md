@@ -1,24 +1,21 @@
-# TeaStore #  
+# TeaStore Monolithic #  
 
-The TeaStore is a micro-service reference and test application to be used in benchmarks and tests. The TeaStore emulates a basic web store for automatically generated, tea and tea supplies. As it is primarily a test application, it features UI elements for database generation and service resetting in addition to the store itself.
+## Build
 
-The TeaStore is a distributed micro-service application featuring five distinct services plus a registry. Each service may be replicated without limit and deployed on separate devices as desired. Services communicate using REST and using the Netflix [Ribbon](https://github.com/Netflix/ribbon) client side load balancer. Each service also comes in a pre-instrumented variant that uses [Kieker](http://kieker-monitoring.net) to provide detailed information about the TeaStore's actions and behavior.
+1. Clone the repository
+2. Run `mvn package` to build the applications JARS & WARS
+3. Enter the folder `tools` (`cd tools`) and run the script to build docker images `./build_docker.sh`
 
-Check out our [Getting Started Guide](GET_STARTED.md) for information on how to use the TeaStore:
+## Running in docker-compose
 
-1. [Deploying the TeaStore](GET_STARTED.md#1-deploying-the-teastore)
-   1. [Run as Multiple Single Service Containers](GET_STARTED.md#11-run-as-multiple-single-service-containers)
-   2. [Run the TeaStore using Docker Compose](GET_STARTED.md#12-run-the-teastore-using-docker-compose)
-   3. [Run the TeaStore on a Kubernetes Cluster](GET_STARTED.md#13-run-the-teastore-on-a-kubernetes-cluster)
-   4. [Run the TeaStore with helm templates](GET_STARTED.md#14-run-the-teastore-with-helm-templates)
-2. [Using the TeaStore for Testing and Benchmarking](GET_STARTED.md#2-using-the-teastore-for-testing-and-benchmarking)
-   1. [Generating Load](GET_STARTED.md#21-generating-load)
-      1. [LIMBO HTTP Load Generator](GET_STARTED.md#211-limbo-http-load-generator)
-      2. [JMeter™](GET_STARTED.md#212-jmeter)
-   2. [Instrumenting the TeaStore](GET_STARTED.md#22-instrumenting-the-teastore)
-      1. [Docker containers with Kieker](#221-docker-containers-with-kieker)
-      2. [OpenTracing with Kubernetes and Istio](GET_STARTED.md#222-opentracing-with-kubernetes-and-istio)
-3. [Building and Customizing the TeaStore](GET_STARTED.md#3-building-and-customizing-the-teastore)
+At the root folder, run `docker-compose -f ./examples/docker/docker-compose_default.yaml up`
+
+## Running in minikube
+
+1. Load images into minikube `minikube image load teastore-webui:latest` and 
+ `minikube image load teastore-db:latest`
+2. Inside the folder `examples/kubernetes` apply the k8s manifest: `kubectl apply -f k8s.yml`
+
 
 ## Cite Us
 
