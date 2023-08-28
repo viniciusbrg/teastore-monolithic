@@ -694,7 +694,7 @@ public enum SetupController {
   }
 
   private boolean isFirstImageProvider() {
-    return RegistryClient.getClient().getServersForService(Service.IMAGE).size() == 0;
+    return true;
   }
 
   /*
