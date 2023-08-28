@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: teastore-db-container
-          image: docker.io/library/teastore-db:latest
+          image: ghcr.io/viniciusbrg/teastore-monolithic/teastore-db:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3306
@@ -53,7 +53,7 @@ spec:
     spec:
       containers:
         - name: teastore-app-container
-          image: docker.io/library/teastore-webui:latest
+          image: ghcr.io/viniciusbrg/teastore-monolithic/teastore-webui:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: HOST_NAME
