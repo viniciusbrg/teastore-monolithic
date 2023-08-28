@@ -61,7 +61,7 @@ spec:
             - name: REGISTRY_HOST
               value: "registry"
             - name: DB_HOST
-              value: 10.244.0.9
+              value: $(TEASTORE_DB_SERVICE_SERVICE_HOST)
             - name: DB_PORT
               value: "3306"
 
